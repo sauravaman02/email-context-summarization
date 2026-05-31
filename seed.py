@@ -32,19 +32,51 @@ FIRMS = [
 
 ACCOUNTANTS_PER_FIRM = [
     [
-        {"full_name": "Sarah Anderson", "email": "sarah@anderson-cpa.com", "role": "firm_admin"},
-        {"full_name": "Mike Chen", "email": "mike@anderson-cpa.com", "role": "accountant"},
-        {"full_name": "Lisa Rodriguez", "email": "lisa@anderson-cpa.com", "role": "accountant"},
+        {
+            "full_name": "Sarah Anderson",
+            "email": "sarah@anderson-cpa.com",
+            "role": "firm_admin",
+        },
+        {
+            "full_name": "Mike Chen",
+            "email": "mike@anderson-cpa.com",
+            "role": "accountant",
+        },
+        {
+            "full_name": "Lisa Rodriguez",
+            "email": "lisa@anderson-cpa.com",
+            "role": "accountant",
+        },
     ],
     [
-        {"full_name": "James Baker", "email": "james@bakertax.com", "role": "firm_admin"},
-        {"full_name": "Emily Watson", "email": "emily@bakertax.com", "role": "accountant"},
+        {
+            "full_name": "James Baker",
+            "email": "james@bakertax.com",
+            "role": "firm_admin",
+        },
+        {
+            "full_name": "Emily Watson",
+            "email": "emily@bakertax.com",
+            "role": "accountant",
+        },
         {"full_name": "David Kim", "email": "david@bakertax.com", "role": "accountant"},
     ],
     [
-        {"full_name": "Robert Clark", "email": "robert@clarkfinancial.com", "role": "superuser"},
-        {"full_name": "Jennifer Lopez", "email": "jennifer@clarkfinancial.com", "role": "firm_admin"},
-        {"full_name": "Tom Singh", "email": "tom@clarkfinancial.com", "role": "accountant"},
+        {
+            "full_name": "Robert Clark",
+            "email": "robert@clarkfinancial.com",
+            "role": "superuser",
+        },
+        {
+            "full_name": "Jennifer Lopez",
+            "email": "jennifer@clarkfinancial.com",
+            "role": "firm_admin",
+        },
+        {
+            "full_name": "Tom Singh",
+            "email": "tom@clarkfinancial.com",
+            "role": "accountant",
+        },
     ],
 ]
 
@@ -75,7 +107,9 @@ def _email_threads() -> list[list[dict]]:
             {
                 "sender_name": "Akshar Patel",
                 "sender_email": "akshar.patel@gmail.com",
-                "recipients": [{"name": "Sarah Anderson", "email": "sarah@anderson-cpa.com"}],
+                "recipients": [
+                    {"name": "Sarah Anderson", "email": "sarah@anderson-cpa.com"}
+                ],
                 "subject": "Tax Documents for 2025 Filing",
                 "body": (
                     "Hi Sarah,\n\nI wanted to get started on my 2025 tax return. I've received "
@@ -90,7 +124,9 @@ def _email_threads() -> list[list[dict]]:
             {
                 "sender_name": "Sarah Anderson",
                 "sender_email": "sarah@anderson-cpa.com",
-                "recipients": [{"name": "Akshar Patel", "email": "akshar.patel@gmail.com"}],
+                "recipients": [
+                    {"name": "Akshar Patel", "email": "akshar.patel@gmail.com"}
+                ],
                 "subject": "Re: Tax Documents for 2025 Filing",
                 "body": (
                     "Hi Akshar,\n\nGreat to hear from you! Let's definitely get started. "
@@ -150,7 +186,9 @@ def _email_threads() -> list[list[dict]]:
             {
                 "sender_name": "Mike Chen",
                 "sender_email": "mike@anderson-cpa.com",
-                "recipients": [{"name": "Akshar Patel", "email": "akshar.patel@gmail.com"}],
+                "recipients": [
+                    {"name": "Akshar Patel", "email": "akshar.patel@gmail.com"}
+                ],
                 "subject": "Re: Tax Documents for 2025 Filing — Estimated Tax Penalty",
                 "body": (
                     "Hi Akshar,\n\nThanks for the detailed info. Regarding the missed estimated "
@@ -209,7 +247,9 @@ def _email_threads() -> list[list[dict]]:
             {
                 "sender_name": "Akshar Patel",
                 "sender_email": "akshar.patel@gmail.com",
-                "recipients": [{"name": "Lisa Rodriguez", "email": "lisa@anderson-cpa.com"}],
+                "recipients": [
+                    {"name": "Lisa Rodriguez", "email": "lisa@anderson-cpa.com"}
+                ],
                 "subject": "Re: 1099-INT Received + Question about Crypto",
                 "body": (
                     "Hi Lisa,\n\nYes, I have my Coinbase statement. I'll download and send it "
@@ -224,7 +264,9 @@ def _email_threads() -> list[list[dict]]:
             {
                 "sender_name": "Maria Santos",
                 "sender_email": "maria.santos@outlook.com",
-                "recipients": [{"name": "Sarah Anderson", "email": "sarah@anderson-cpa.com"}],
+                "recipients": [
+                    {"name": "Sarah Anderson", "email": "sarah@anderson-cpa.com"}
+                ],
                 "subject": "Small Business Tax Filing — Santos Bakery LLC",
                 "body": (
                     "Hello Sarah,\n\nI need help filing the tax return for my bakery. This was "
@@ -238,7 +280,9 @@ def _email_threads() -> list[list[dict]]:
             {
                 "sender_name": "Sarah Anderson",
                 "sender_email": "sarah@anderson-cpa.com",
-                "recipients": [{"name": "Maria Santos", "email": "maria.santos@outlook.com"}],
+                "recipients": [
+                    {"name": "Maria Santos", "email": "maria.santos@outlook.com"}
+                ],
                 "subject": "Re: Small Business Tax Filing — Santos Bakery LLC",
                 "body": (
                     "Hi Maria,\n\nCongratulations on your first full year! I'd recommend "
@@ -257,7 +301,9 @@ def _email_threads() -> list[list[dict]]:
             {
                 "sender_name": "Maria Santos",
                 "sender_email": "maria.santos@outlook.com",
-                "recipients": [{"name": "Sarah Anderson", "email": "sarah@anderson-cpa.com"}],
+                "recipients": [
+                    {"name": "Sarah Anderson", "email": "sarah@anderson-cpa.com"}
+                ],
                 "subject": "Re: Small Business Tax Filing — Santos Bakery LLC",
                 "body": (
                     "Hi Sarah,\n\nI don't use QuickBooks yet — I've been tracking everything "
@@ -313,7 +359,9 @@ def _email_threads() -> list[list[dict]]:
             {
                 "sender_name": "John Williams",
                 "sender_email": "john.williams@yahoo.com",
-                "recipients": [{"name": "Sarah Anderson", "email": "sarah@anderson-cpa.com"}],
+                "recipients": [
+                    {"name": "Sarah Anderson", "email": "sarah@anderson-cpa.com"}
+                ],
                 "subject": "URGENT: IRS Notice CP2000 — Unreported Income",
                 "body": (
                     "Sarah,\n\nI just received an IRS notice (CP2000) saying I have unreported "
@@ -327,7 +375,9 @@ def _email_threads() -> list[list[dict]]:
             {
                 "sender_name": "Sarah Anderson",
                 "sender_email": "sarah@anderson-cpa.com",
-                "recipients": [{"name": "John Williams", "email": "john.williams@yahoo.com"}],
+                "recipients": [
+                    {"name": "John Williams", "email": "john.williams@yahoo.com"}
+                ],
                 "subject": "Re: URGENT: IRS Notice CP2000 — Don't Panic",
                 "body": (
                     "John,\n\nDon't panic — CP2000 notices are very common and usually "
@@ -345,7 +395,9 @@ def _email_threads() -> list[list[dict]]:
             {
                 "sender_name": "John Williams",
                 "sender_email": "john.williams@yahoo.com",
-                "recipients": [{"name": "Sarah Anderson", "email": "sarah@anderson-cpa.com"}],
+                "recipients": [
+                    {"name": "Sarah Anderson", "email": "sarah@anderson-cpa.com"}
+                ],
                 "subject": "Re: URGENT: IRS Notice CP2000 — Documents",
                 "body": (
                     "Sarah,\n\nI found everything. The 1099-B shows:\n"
@@ -401,7 +453,9 @@ def _email_threads() -> list[list[dict]]:
             {
                 "sender_name": "Emily Watson",
                 "sender_email": "emily@bakertax.com",
-                "recipients": [{"name": "Priya Sharma", "email": "priya.sharma@gmail.com"}],
+                "recipients": [
+                    {"name": "Priya Sharma", "email": "priya.sharma@gmail.com"}
+                ],
                 "subject": "Re: Complex Tax Situation — Document Checklist",
                 "body": (
                     "Hi Priya,\n\nThat's quite the portfolio! Here's your document checklist:\n\n"
@@ -459,7 +513,9 @@ def _email_threads() -> list[list[dict]]:
             {
                 "sender_name": "David Kim",
                 "sender_email": "david@bakertax.com",
-                "recipients": [{"name": "Priya Sharma", "email": "priya.sharma@gmail.com"}],
+                "recipients": [
+                    {"name": "Priya Sharma", "email": "priya.sharma@gmail.com"}
+                ],
                 "subject": "Re: Complex Tax Situation — HVAC Deduction",
                 "body": (
                     "Hi Priya,\n\nGreat info. Regarding the HVAC:\n\n"
@@ -493,7 +549,9 @@ def _email_threads() -> list[list[dict]]:
             {
                 "sender_name": "James Baker",
                 "sender_email": "james@bakertax.com",
-                "recipients": [{"name": "Carlos Mendez", "email": "carlos.mendez@hotmail.com"}],
+                "recipients": [
+                    {"name": "Carlos Mendez", "email": "carlos.mendez@hotmail.com"}
+                ],
                 "subject": "Re: Need to File Extension",
                 "body": (
                     "Carlos,\n\nAbsolutely — I'll file Form 4868 to extend your deadline to "
@@ -539,7 +597,9 @@ def _email_threads() -> list[list[dict]]:
             {
                 "sender_name": "Emily Watson",
                 "sender_email": "emily@bakertax.com",
-                "recipients": [{"name": "Susan O'Brien", "email": "susan.obrien@gmail.com"}],
+                "recipients": [
+                    {"name": "Susan O'Brien", "email": "susan.obrien@gmail.com"}
+                ],
                 "subject": "Re: Charitable Contributions — Analysis",
                 "body": (
                     "Hi Susan,\n\nGreat question. Here's the breakdown:\n\n"
@@ -560,7 +620,9 @@ def _email_threads() -> list[list[dict]]:
             {
                 "sender_name": "Wei Zhang",
                 "sender_email": "wei.zhang@gmail.com",
-                "recipients": [{"name": "Tom Singh", "email": "tom@clarkfinancial.com"}],
+                "recipients": [
+                    {"name": "Tom Singh", "email": "tom@clarkfinancial.com"}
+                ],
                 "subject": "Foreign Income and FBAR Filing",
                 "body": (
                     "Hi Tom,\n\nI have income from China that I need to report:\n\n"
@@ -640,7 +702,9 @@ def _email_threads() -> list[list[dict]]:
             {
                 "sender_name": "Ahmed Hassan",
                 "sender_email": "ahmed.hassan@outlook.com",
-                "recipients": [{"name": "Tom Singh", "email": "tom@clarkfinancial.com"}],
+                "recipients": [
+                    {"name": "Tom Singh", "email": "tom@clarkfinancial.com"}
+                ],
                 "subject": "Major Medical Expenses in 2025",
                 "body": (
                     "Tom,\n\nI had a rough year health-wise. My medical expenses were:\n\n"
@@ -655,7 +719,9 @@ def _email_threads() -> list[list[dict]]:
             {
                 "sender_name": "Tom Singh",
                 "sender_email": "tom@clarkfinancial.com",
-                "recipients": [{"name": "Ahmed Hassan", "email": "ahmed.hassan@outlook.com"}],
+                "recipients": [
+                    {"name": "Ahmed Hassan", "email": "ahmed.hassan@outlook.com"}
+                ],
                 "subject": "Re: Major Medical Expenses — Good News",
                 "body": (
                     "Ahmed,\n\nSorry to hear about the health challenges. The good news is "
@@ -679,7 +745,9 @@ def _email_threads() -> list[list[dict]]:
             {
                 "sender_name": "Rachel Green",
                 "sender_email": "rachel.green@yahoo.com",
-                "recipients": [{"name": "Jennifer Lopez", "email": "jennifer@clarkfinancial.com"}],
+                "recipients": [
+                    {"name": "Jennifer Lopez", "email": "jennifer@clarkfinancial.com"}
+                ],
                 "subject": "Bought My First Home! Tax Implications?",
                 "body": (
                     "Hi Jennifer,\n\nI closed on my first home in July 2025! Purchase price "
@@ -696,7 +764,9 @@ def _email_threads() -> list[list[dict]]:
             {
                 "sender_name": "Jennifer Lopez",
                 "sender_email": "jennifer@clarkfinancial.com",
-                "recipients": [{"name": "Rachel Green", "email": "rachel.green@yahoo.com"}],
+                "recipients": [
+                    {"name": "Rachel Green", "email": "rachel.green@yahoo.com"}
+                ],
                 "subject": "Re: Bought My First Home! — Tax Benefits",
                 "body": (
                     "Congratulations Rachel!\n\nHere's your first-year homeowner tax breakdown:\n\n"
@@ -718,7 +788,9 @@ def _email_threads() -> list[list[dict]]:
             {
                 "sender_name": "Rachel Green",
                 "sender_email": "rachel.green@yahoo.com",
-                "recipients": [{"name": "Jennifer Lopez", "email": "jennifer@clarkfinancial.com"}],
+                "recipients": [
+                    {"name": "Jennifer Lopez", "email": "jennifer@clarkfinancial.com"}
+                ],
                 "subject": "Re: Bought My First Home! — More Questions",
                 "body": (
                     "Thanks Jennifer! That's really helpful.\n\n"
@@ -733,7 +805,9 @@ def _email_threads() -> list[list[dict]]:
             {
                 "sender_name": "Jennifer Lopez",
                 "sender_email": "jennifer@clarkfinancial.com",
-                "recipients": [{"name": "Rachel Green", "email": "rachel.green@yahoo.com"}],
+                "recipients": [
+                    {"name": "Rachel Green", "email": "rachel.green@yahoo.com"}
+                ],
                 "subject": "Re: Bought My First Home! — Roth IRA & Moving",
                 "body": (
                     "Great questions Rachel:\n\n"
@@ -809,7 +883,9 @@ async def seed() -> None:
     print(f"  Email threads: {thread_idx}")
     print(f"\nLogin credentials (all accounts): password = '{COMMON_PASSWORD}'")
     print("Superuser: robert@clarkfinancial.com")
-    print("Firm admins: sarah@anderson-cpa.com, james@bakertax.com, jennifer@clarkfinancial.com")
+    print(
+        "Firm admins: sarah@anderson-cpa.com, james@bakertax.com, jennifer@clarkfinancial.com"
+    )
 
 
 if __name__ == "__main__":

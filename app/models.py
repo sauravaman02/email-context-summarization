@@ -36,7 +36,9 @@ class Firm(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow
+    )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
     )
@@ -54,12 +56,16 @@ class Accountant(Base):
     firm_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("firms.id"), nullable=False, index=True
     )
-    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
+    email: Mapped[str] = mapped_column(
+        String(255), unique=True, nullable=False, index=True
+    )
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[str] = mapped_column(String(20), nullable=False, default="accountant")
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow
+    )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
     )
@@ -78,14 +84,18 @@ class Client(Base):
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     email: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow
+    )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
     )
 
     firm: Mapped["Firm"] = relationship(back_populates="clients")
     emails: Mapped[list["Email"]] = relationship(back_populates="client")
-    summary: Mapped["EmailSummary | None"] = relationship(back_populates="client", uselist=False)
+    summary: Mapped["EmailSummary | None"] = relationship(
+        back_populates="client", uselist=False
+    )
 
 
 class Email(Base):
@@ -109,7 +119,9 @@ class Email(Base):
     sent_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, index=True
     )
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow
+    )
 
     client: Mapped["Client"] = relationship(back_populates="emails")
 
@@ -130,7 +142,9 @@ class EmailSummary(Base):
     )
     encrypted_summary: Mapped[str] = mapped_column(Text, nullable=False)
     emails_analysed_count: Mapped[int] = mapped_column(Integer, default=0)
-    last_refreshed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_refreshed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     input_tokens: Mapped[int] = mapped_column(Integer, default=0)
     output_tokens: Mapped[int] = mapped_column(Integer, default=0)
     date_range_start: Mapped[datetime | None] = mapped_column(
@@ -139,7 +153,9 @@ class EmailSummary(Base):
     date_range_end: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow
+    )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
     )

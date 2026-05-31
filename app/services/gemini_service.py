@@ -79,7 +79,9 @@ def _extract_token_usage(response) -> tuple[int, int]:
     output_tokens = 0
     if hasattr(response, "usage_metadata") and response.usage_metadata:
         input_tokens = getattr(response.usage_metadata, "prompt_token_count", 0) or 0
-        output_tokens = getattr(response.usage_metadata, "candidates_token_count", 0) or 0
+        output_tokens = (
+            getattr(response.usage_metadata, "candidates_token_count", 0) or 0
+        )
     return input_tokens, output_tokens
 
 
@@ -152,4 +154,6 @@ async def summarize_emails(
                 await asyncio.sleep(wait)
 
     logger.error("Gemini API failed after %d attempts: %s", max_retries, last_exception)
-    raise RuntimeError(f"Gemini API failed after {max_retries} retries") from last_exception
+    raise RuntimeError(
+        f"Gemini API failed after {max_retries} retries"
+    ) from last_exception

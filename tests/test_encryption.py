@@ -19,9 +19,18 @@ def _reset_fernet(monkeypatch):
 class TestEncryption:
     def test_roundtrip(self):
         data = {
-            "actors": [{"name": "John", "role": "Client", "involvement": "Primary taxpayer"}],
+            "actors": [
+                {"name": "John", "role": "Client", "involvement": "Primary taxpayer"}
+            ],
             "concluded_discussions": [],
-            "open_action_items": [{"item": "Send W-2", "assigned_to": "John", "priority": "high", "context": "Needed for filing"}],
+            "open_action_items": [
+                {
+                    "item": "Send W-2",
+                    "assigned_to": "John",
+                    "priority": "high",
+                    "context": "Needed for filing",
+                }
+            ],
         }
         encrypted = encryption_service.encrypt(data)
         assert encrypted != str(data)
@@ -43,7 +52,9 @@ class TestEncryption:
         encrypted = encryption_service.encrypt(data)
 
         new_key = Fernet.generate_key().decode()
-        monkeypatch.setattr("app.services.encryption_service.settings.encryption_key", new_key)
+        monkeypatch.setattr(
+            "app.services.encryption_service.settings.encryption_key", new_key
+        )
         encryption_service._fernet = None
 
         with pytest.raises(Exception):
@@ -55,6 +66,8 @@ class TestEncryption:
         assert encryption_service.decrypt(encrypted) == data
 
     def test_large_payload(self):
-        data = {"items": [{"id": i, "text": f"Item number {i}" * 50} for i in range(100)]}
+        data = {
+            "items": [{"id": i, "text": f"Item number {i}" * 50} for i in range(100)]
+        }
         encrypted = encryption_service.encrypt(data)
         assert encryption_service.decrypt(encrypted) == data

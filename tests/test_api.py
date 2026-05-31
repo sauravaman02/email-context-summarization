@@ -107,7 +107,9 @@ class TestReportEndpoints:
         assert data["clients_with_summaries"] == 0
 
     async def test_firm_report_as_accountant_forbidden(self, async_client, seeded_db):
-        token = make_token(seeded_db["accountant"].id, seeded_db["firm"].id, "accountant")
+        token = make_token(
+            seeded_db["accountant"].id, seeded_db["firm"].id, "accountant"
+        )
         resp = await async_client.get(
             "/api/reports/firm",
             headers={"Authorization": f"Bearer {token}"},

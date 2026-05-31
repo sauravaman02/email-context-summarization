@@ -48,7 +48,9 @@ class EmailRepository:
         end_date: datetime | None = None,
     ) -> int:
         """Count emails matching the date filter (drives partial-refresh logic)."""
-        stmt = select(func.count()).select_from(Email).where(Email.client_id == client_id)
+        stmt = (
+            select(func.count()).select_from(Email).where(Email.client_id == client_id)
+        )
         if start_date:
             stmt = stmt.where(Email.sent_at >= start_date)
         if end_date:

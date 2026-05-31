@@ -91,7 +91,9 @@ class SummaryRepository:
                 Firm.id.label("firm_id"),
                 Firm.name.label("firm_name"),
                 func.count(func.distinct(Client.id)).label("total_clients"),
-                func.count(func.distinct(EmailSummary.id)).label("clients_with_summaries"),
+                func.count(func.distinct(EmailSummary.id)).label(
+                    "clients_with_summaries"
+                ),
             )
             .select_from(Firm)
             .outerjoin(Client, Client.firm_id == Firm.id)

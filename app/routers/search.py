@@ -18,7 +18,9 @@ class SearchRequest(BaseModel):
         ...,
         min_length=1,
         description="Natural language search query",
-        json_schema_extra={"examples": ["clients who had issues with their 1099-INT filing"]},
+        json_schema_extra={
+            "examples": ["clients who had issues with their 1099-INT filing"]
+        },
     )
 
 

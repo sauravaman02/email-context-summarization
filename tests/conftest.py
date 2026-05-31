@@ -140,5 +140,7 @@ async def async_client(db_engine):
     app.dependency_overrides.clear()
 
 
-def make_token(accountant_id: uuid.UUID, firm_id: uuid.UUID, role: str = "accountant") -> str:
+def make_token(
+    accountant_id: uuid.UUID, firm_id: uuid.UUID, role: str = "accountant"
+) -> str:
     return create_access_token(accountant_id, firm_id, role)

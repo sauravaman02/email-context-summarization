@@ -146,9 +146,14 @@ async def simulate_incoming_email(
             client_id=client_id,
             sender_email=client.email,
             sender_name=client.name,
-            recipients=[{"name": user.email.split("@")[0].replace(".", " ").title(), "email": user.email}],
+            recipients=[
+                {
+                    "name": user.email.split("@")[0].replace(".", " ").title(),
+                    "email": user.email,
+                }
+            ],
             subject=subjects[i % len(subjects)],
-            body=f"Hi, this is a follow-up regarding my tax filing. Could you please provide an update on the status? (Simulated email #{i+1})",
+            body=f"Hi, this is a follow-up regarding my tax filing. Could you please provide an update on the status? (Simulated email #{i + 1})",
             sent_at=now,
         )
         db.add(email)

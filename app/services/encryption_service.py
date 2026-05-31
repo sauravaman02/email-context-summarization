@@ -28,7 +28,9 @@ def _get_fernet() -> Fernet:
         try:
             _fernet = Fernet(key)
         except (ValueError, Exception) as exc:
-            logger.error("Invalid ENCRYPTION_KEY — generate one with Fernet.generate_key()")
+            logger.error(
+                "Invalid ENCRYPTION_KEY — generate one with Fernet.generate_key()"
+            )
             raise ValueError("Invalid encryption key configuration") from exc
     return _fernet
 

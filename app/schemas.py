@@ -95,7 +95,9 @@ class EmailListResponse(BaseModel):
 class SummaryRequest(BaseModel):
     """Optional date range filter for summarisation. Omit both for all emails."""
 
-    start_date: datetime | None = Field(None, description="Inclusive start of date range")
+    start_date: datetime | None = Field(
+        None, description="Inclusive start of date range"
+    )
     end_date: datetime | None = Field(None, description="Inclusive end of date range")
 
 

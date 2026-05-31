@@ -18,12 +18,12 @@ router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 @router.post("/login", response_model=TokenResponse)
 async def login(body: LoginRequest, db: DbSession):
     """Authenticate with email and password, returns a JWT bearer token."""
-    result = await db.execute(
-        select(Accountant).where(Accountant.email == body.email)
-    )
+    result = await db.execute(select(Accountant).where(Accountant.email == body.email))
     accountant = result.scalar_one_or_none()
 
-    if accountant is None or not verify_password(body.password, accountant.hashed_password):
+    if accountant is None or not verify_password(
+        body.password, accountant.hashed_password
+    ):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",

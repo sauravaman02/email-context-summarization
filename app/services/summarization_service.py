@@ -93,7 +93,9 @@ class SummarizationService:
         if not force_refresh and existing_summary is not None:
             new_emails = total_emails - existing_summary.emails_analysed_count
             if new_emails < settings.summarization_min_new_emails:
-                decrypted = encryption_service.decrypt(existing_summary.encrypted_summary)
+                decrypted = encryption_service.decrypt(
+                    existing_summary.encrypted_summary
+                )
                 response = SummaryResponse(
                     client_id=client_id,
                     summary=SummaryContent(**decrypted),
@@ -128,16 +130,21 @@ class SummarizationService:
         ]
 
         try:
-            summary_dict, input_tokens, output_tokens = await gemini_service.summarize_emails(
-                email_dicts
-            )
+            (
+                summary_dict,
+                input_tokens,
+                output_tokens,
+            ) = await gemini_service.summarize_emails(email_dicts)
         except RuntimeError:
             # Resilience: return the existing summary rather than failing entirely
             if existing_summary is not None:
                 logger.warning(
-                    "Gemini failed — returning existing summary for client %s", client_id
+                    "Gemini failed — returning existing summary for client %s",
+                    client_id,
                 )
-                decrypted = encryption_service.decrypt(existing_summary.encrypted_summary)
+                decrypted = encryption_service.decrypt(
+                    existing_summary.encrypted_summary
+                )
                 return SummaryResponse(
                     client_id=client_id,
                     summary=SummaryContent(**decrypted),

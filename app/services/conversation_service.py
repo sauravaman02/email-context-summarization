@@ -81,7 +81,7 @@ async def _build_context(db: AsyncSession, firm_id: UUID) -> str:
         email_lines = []
         for e in emails:
             email_lines.append(
-                f"- From: {e.sender_name} | To: {', '.join(r.get('name','') for r in e.recipients)} "
+                f"- From: {e.sender_name} | To: {', '.join(r.get('name', '') for r in e.recipients)} "
                 f"| Date: {e.sent_at.strftime('%Y-%m-%d') if e.sent_at else '?'} "
                 f"| Subject: {e.subject}\n  {e.body[:400]}"
             )
@@ -114,7 +114,7 @@ async def chat(
     if len(session.history) > 1:
         earlier = session.history[:-1]
         history_text = "\n\nPrevious conversation:\n" + "\n".join(
-            f"{'User' if h['role']=='user' else 'Assistant'}: {h['content']}"
+            f"{'User' if h['role'] == 'user' else 'Assistant'}: {h['content']}"
             for h in earlier[-MAX_HISTORY_TURNS:]
         )
 
@@ -142,8 +142,12 @@ async def chat(
         input_tokens = 0
         output_tokens = 0
         if hasattr(response, "usage_metadata") and response.usage_metadata:
-            input_tokens = getattr(response.usage_metadata, "prompt_token_count", 0) or 0
-            output_tokens = getattr(response.usage_metadata, "candidates_token_count", 0) or 0
+            input_tokens = (
+                getattr(response.usage_metadata, "prompt_token_count", 0) or 0
+            )
+            output_tokens = (
+                getattr(response.usage_metadata, "candidates_token_count", 0) or 0
+            )
 
         session.history.append({"role": "assistant", "content": answer})
 

@@ -17,7 +17,9 @@ logger = logging.getLogger("app.requests")
 
 
 class RequestLoggingMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
         request_id = str(uuid.uuid4())[:8]
         start = time.perf_counter()
 

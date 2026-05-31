@@ -56,7 +56,9 @@ class TestJWT:
             "role": "accountant",
             "exp": datetime.now(timezone.utc) - timedelta(hours=1),
         }
-        token = jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
+        token = jwt.encode(
+            payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm
+        )
         with pytest.raises(Exception):
             decode_access_token(token)
 
