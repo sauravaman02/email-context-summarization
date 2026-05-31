@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Email Context — Ascend CPA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50:'#eff6ff',100:'#dbeafe',200:'#bfdbfe',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8',800:'#1e40af',900:'#1e3a5f' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .fade-in { animation: fadeIn .25s ease-in; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    .loader { border:3px solid #e5e7eb; border-top:3px solid #2563eb; border-radius:50%; width:24px; height:24px; animation:spin .7s linear infinite; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+  </style>
+</head>
+<body class="h-full">
+
+<!-- ─── Login Screen ──────────────────────────────────────────────── -->
+<div id="login-screen" class="min-h-full flex items-center justify-center py-12 px-4">
+  <div class="max-w-md w-full space-y-8">
+    <div class="text-center">
+      <div class="mx-auto h-14 w-14 bg-brand-600 rounded-xl flex items-center justify-center">
+        <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      </div>
+      <h2 class="mt-4 text-3xl font-bold text-gray-900">Email Context</h2>
+      <p class="mt-1 text-sm text-gray-500">Unified email intelligence for your firm</p>
+    </div>
+    <form id="login-form" class="mt-8 bg-white shadow-lg rounded-2xl p-8 space-y-6">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Email address</label>
+        <input id="login-email" type="email" required class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none" placeholder="you@firm.com" value="sarah@anderson-cpa.com"/>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+        <input id="login-password" type="password" required class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none" placeholder="••••••••" value="password123"/>
+      </div>
+      <div id="login-error" class="text-red-600 text-sm hidden"></div>
+      <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-lg transition">Sign in</button>
+      <p class="text-xs text-gray-400 text-center">Demo accounts: sarah@anderson-cpa.com · robert@clarkfinancial.com</p>
+    </form>
+  </div>
+</div>
+
+<!-- ─── App Shell ─────────────────────────────────────────────────── -->
+<div id="app-shell" class="hidden h-full">
+  <!-- Top bar -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+      <div class="flex items-center gap-3">
+        <div class="h-9 w-9 bg-brand-600 rounded-lg flex items-center justify-center">
+          <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        </div>
+        <span class="text-lg font-bold text-gray-900">Email Context</span>
+      </div>
+      <nav class="flex items-center gap-1" id="nav-tabs"></nav>
+      <div class="flex items-center gap-4">
+        <div class="text-right">
+          <div id="user-name" class="text-sm font-medium text-gray-900"></div>
+          <div id="user-role" class="text-xs text-gray-500"></div>
+        </div>
+        <button onclick="logout()" class="text-sm text-gray-500 hover:text-red-600 transition">Sign out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div id="main-content"></div>
+  </main>
+</div>
+
+<script>
+const API = '';
+let token = null;
+let user = null;
+let clients = [];
+
+// ─── Auth ────────────────────────────────────────────────────────
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  errEl.classList.add('hidden');
+
+  try {
+    const res = await fetch(`${API}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    if (!res.ok) { const d = await res.json(); throw new Error(d.detail || 'Login failed'); }
+    const data = await res.json();
+    token = data.access_token;
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    user = { id: payload.sub, firm_id: payload.firm_id, role: payload.role, email };
+    enterApp();
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.classList.remove('hidden');
+  }
+});
+
+function logout() {
+  token = null; user = null; clients = [];
+  document.getElementById('app-shell').classList.add('hidden');
+  document.getElementById('login-screen').classList.remove('hidden');
+}
+
+async function apiFetch(path) {
+  const res = await fetch(`${API}${path}`, { headers: { 'Authorization': `Bearer ${token}` } });
+  if (res.status === 401) { logout(); throw new Error('Session expired'); }
+  if (!res.ok) { const d = await res.json().catch(()=>({})); throw new Error(d.detail || `Error ${res.status}`); }
+  return res.json();
+}
+
+async function apiPost(path, body = {}) {
+  const res = await fetch(`${API}${path}`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (res.status === 401) { logout(); throw new Error('Session expired'); }
+  if (!res.ok) { const d = await res.json().catch(()=>({})); throw new Error(d.detail || `Error ${res.status}`); }
+  return res.json();
+}
+
+// ─── App entry ───────────────────────────────────────────────────
+function enterApp() {
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app-shell').classList.remove('hidden');
+  document.getElementById('user-name').textContent = user.email.split('@')[0].replace(/\./g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  const roleLabel = { accountant:'Accountant', firm_admin:'Firm Admin', superuser:'Super Admin' };
+  document.getElementById('user-role').textContent = roleLabel[user.role] || user.role;
+  buildNav();
+  showDashboard();
+}
+
+function buildNav() {
+  const tabs = [
+    { id:'dashboard', label:'Clients', icon:'👥' },
+    { id:'search', label:'Search', icon:'🔍' },
+    { id:'chat', label:'Ask AI', icon:'💬' },
+  ];
+  if (user.role === 'firm_admin' || user.role === 'superuser') tabs.push({ id:'reports', label:'Reports', icon:'📊' });
+  const nav = document.getElementById('nav-tabs');
+  nav.innerHTML = tabs.map(t =>
+    `<button onclick="navigate('${t.id}')" data-tab="${t.id}" class="nav-tab px-4 py-2 text-sm font-medium rounded-lg transition hover:bg-gray-100 text-gray-600">${t.icon} ${t.label}</button>`
+  ).join('');
+}
+
+function setActiveTab(id) {
+  document.querySelectorAll('.nav-tab').forEach(b => {
+    b.classList.toggle('bg-brand-50', b.dataset.tab === id);
+    b.classList.toggle('text-brand-700', b.dataset.tab === id);
+    b.classList.toggle('text-gray-600', b.dataset.tab !== id);
+  });
+}
+
+function navigate(page, ...args) {
+  if (page === 'dashboard') showDashboard();
+  else if (page === 'client') showClient(args[0]);
+  else if (page === 'search') showSearch();
+  else if (page === 'chat') showChat();
+  else if (page === 'reports') showReports();
+}
+
+// ─── Dashboard ───────────────────────────────────────────────────
+async function showDashboard() {
+  setActiveTab('dashboard');
+  const mc = document.getElementById('main-content');
+  mc.innerHTML = `<div class="flex items-center justify-center py-20"><div class="loader"></div></div>`;
+
+  try {
+    const data = await apiFetch('/api/clients?limit=100');
+    clients = data.clients;
+    mc.innerHTML = `
+      <div class="fade-in">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">Clients</h1>
+            <p class="text-sm text-gray-500 mt-1">${data.total} client(s) in your firm</p>
+          </div>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          ${clients.map(c => `
+            <button onclick="navigate('client','${c.id}')" class="bg-white rounded-xl border border-gray-200 p-5 text-left hover:shadow-md hover:border-brand-300 transition group">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="h-10 w-10 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm">${c.name.split(' ').map(w=>w[0]).join('')}</div>
+                <div>
+                  <div class="font-semibold text-gray-900 group-hover:text-brand-700 transition">${c.name}</div>
+                  <div class="text-xs text-gray-500">${c.email}</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 text-sm text-gray-500">
+                <span class="flex items-center gap-1">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                  ${c.email_count} emails
+                </span>
+              </div>
+            </button>
+          `).join('')}
+        </div>
+      </div>`;
+  } catch (err) {
+    mc.innerHTML = `<div class="bg-red-50 text-red-700 rounded-xl p-6">${err.message}</div>`;
+  }
+}
+
+// ─── Client Detail ───────────────────────────────────────────────
+async function showClient(clientId) {
+  setActiveTab('dashboard');
+  const mc = document.getElementById('main-content');
+  mc.innerHTML = `<div class="flex items-center justify-center py-20"><div class="loader"></div></div>`;
+
+  try {
+    const [client, emailData] = await Promise.all([
+      apiFetch(`/api/clients/${clientId}`),
+      apiFetch(`/api/clients/${clientId}/emails?limit=50`)
+    ]);
+
+    mc.innerHTML = `
+      <div class="fade-in">
+        <button onclick="showDashboard()" class="text-sm text-brand-600 hover:text-brand-800 mb-4 inline-flex items-center gap-1">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          Back to clients
+        </button>
+
+        <div class="flex items-start justify-between mb-6">
+          <div class="flex items-center gap-4">
+            <div class="h-14 w-14 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-lg">${client.name.split(' ').map(w=>w[0]).join('')}</div>
+            <div>
+              <h1 class="text-2xl font-bold text-gray-900">${client.name}</h1>
+              <p class="text-sm text-gray-500">${client.email} · ${client.email_count} emails</p>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="generateSummary('${clientId}', false)" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
+              Generate Summary
+            </button>
+            <button onclick="generateSummary('${clientId}', true)" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg transition">
+              Force Refresh
+            </button>
+            <button onclick="simulateEmails('${clientId}')" class="bg-amber-50 border border-amber-300 hover:bg-amber-100 text-amber-800 text-sm font-medium px-4 py-2 rounded-lg transition" title="Simulate incoming emails to test partial-refresh logic">
+              + Simulate Emails
+            </button>
+          </div>
+        </div>
+
+        <div id="summary-area" class="mb-8"></div>
+
+        <div>
+          <h2 class="text-lg font-semibold text-gray-900 mb-4">Email Thread</h2>
+          <div class="space-y-3">
+            ${emailData.emails.map(e => `
+              <div class="bg-white rounded-xl border border-gray-200 p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center gap-2">
+                    <div class="h-8 w-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-xs font-bold">${e.sender_name.split(' ').map(w=>w[0]).join('')}</div>
+                    <div>
+                      <span class="text-sm font-semibold text-gray-900">${e.sender_name}</span>
+                      <span class="text-xs text-gray-400 ml-2">&lt;${e.sender_email}&gt;</span>
+                    </div>
+                  </div>
+                  <span class="text-xs text-gray-400">${new Date(e.sent_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })}</span>
+                </div>
+                <div class="text-sm font-medium text-gray-700 mb-1">${e.subject || '(no subject)'}</div>
+                <div class="text-sm text-gray-600 whitespace-pre-line leading-relaxed">${e.body}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>`;
+  } catch (err) {
+    mc.innerHTML = `<div class="bg-red-50 text-red-700 rounded-xl p-6">${err.message}</div>`;
+  }
+}
+
+async function generateSummary(clientId, forceRefresh) {
+  const area = document.getElementById('summary-area');
+  area.innerHTML = `
+    <div class="bg-brand-50 border border-brand-200 rounded-xl p-6 flex items-center gap-3">
+      <div class="loader"></div>
+      <span class="text-sm text-brand-700">${forceRefresh ? 'Re-analysing' : 'Analysing'} emails with Gemini AI...</span>
+    </div>`;
+
+  try {
+    const endpoint = forceRefresh
+      ? `/api/clients/${clientId}/summary/refresh`
+      : `/api/clients/${clientId}/summary`;
+    const data = await apiPost(endpoint, {});
+    renderSummary(area, data);
+  } catch (err) {
+    area.innerHTML = `<div class="bg-red-50 border border-red-200 text-red-700 rounded-xl p-6 text-sm">${err.message}</div>`;
+  }
+}
+
+function renderSummary(container, data) {
+  const s = data.summary;
+  const skippedBadge = data.skipped
+    ? `<span class="inline-flex items-center gap-1 bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Cached — ${data.skip_reason}</span>`
+    : '';
+
+  container.innerHTML = `
+    <div class="bg-white border border-gray-200 rounded-xl overflow-hidden fade-in">
+      <div class="bg-gray-50 border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        <h3 class="font-semibold text-gray-900">AI Summary</h3>
+        <div class="flex items-center gap-3">
+          ${skippedBadge}
+          <span class="text-xs text-gray-400">${data.emails_analysed_count} emails · ${data.input_tokens + data.output_tokens} tokens</span>
+        </div>
+      </div>
+      <div class="p-6 grid gap-6 lg:grid-cols-3">
+        <!-- Actors -->
+        <div>
+          <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+            <span class="h-6 w-6 rounded bg-blue-100 text-blue-600 flex items-center justify-center text-xs">👤</span>
+            Actors (${s.actors.length})
+          </h4>
+          <div class="space-y-2">
+            ${s.actors.map(a => `
+              <div class="bg-gray-50 rounded-lg p-3">
+                <div class="text-sm font-medium text-gray-900">${a.name}</div>
+                <div class="text-xs text-brand-600 font-medium">${a.role}</div>
+                <div class="text-xs text-gray-500 mt-1">${a.involvement}</div>
+              </div>
+            `).join('') || '<p class="text-sm text-gray-400">None identified</p>'}
+          </div>
+        </div>
+
+        <!-- Concluded -->
+        <div>
+          <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+            <span class="h-6 w-6 rounded bg-green-100 text-green-600 flex items-center justify-center text-xs">✅</span>
+            Concluded (${s.concluded_discussions.length})
+          </h4>
+          <div class="space-y-2">
+            ${s.concluded_discussions.map(c => `
+              <div class="bg-gray-50 rounded-lg p-3">
+                <div class="text-sm font-medium text-gray-900">${c.topic}</div>
+                <div class="text-xs text-gray-500 mt-1">${c.resolution}</div>
+                <div class="text-xs text-gray-400 mt-1">${c.resolved_date}</div>
+              </div>
+            `).join('') || '<p class="text-sm text-gray-400">None yet</p>'}
+          </div>
+        </div>
+
+        <!-- Action Items -->
+        <div>
+          <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+            <span class="h-6 w-6 rounded bg-orange-100 text-orange-600 flex items-center justify-center text-xs">⚡</span>
+            Open Actions (${s.open_action_items.length})
+          </h4>
+          <div class="space-y-2">
+            ${s.open_action_items.map(a => {
+              const pColor = {high:'bg-red-100 text-red-700',medium:'bg-yellow-100 text-yellow-700',low:'bg-gray-100 text-gray-600'}[a.priority] || 'bg-gray-100 text-gray-600';
+              return `
+              <div class="bg-gray-50 rounded-lg p-3">
+                <div class="flex items-center justify-between mb-1">
+                  <div class="text-sm font-medium text-gray-900">${a.item}</div>
+                  <span class="text-xs font-medium px-2 py-0.5 rounded-full ${pColor}">${a.priority}</span>
+                </div>
+                <div class="text-xs text-gray-500">Assigned to: ${a.assigned_to}</div>
+                <div class="text-xs text-gray-400 mt-1">${a.context}</div>
+              </div>`;
+            }).join('') || '<p class="text-sm text-gray-400">None pending</p>'}
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function simulateEmails(clientId) {
+  const countStr = prompt('How many new emails to simulate?', '3');
+  if (!countStr) return;
+  const count = parseInt(countStr, 10);
+  if (isNaN(count) || count < 1) return;
+
+  try {
+    const data = await apiPost(`/api/clients/${clientId}/emails/simulate?count=${count}`, {});
+    alert(`${data.message}\n\nTotal emails now: ${data.total_emails_now}\n\nCall "Generate Summary" again to see if it skips or re-runs.`);
+    showClient(clientId);
+  } catch (err) {
+    alert('Error: ' + err.message);
+  }
+}
+
+// ─── Natural Language Search ─────────────────────────────────────
+async function showSearch() {
+  setActiveTab('search');
+  const mc = document.getElementById('main-content');
+  mc.innerHTML = `
+    <div class="fade-in">
+      <h1 class="text-2xl font-bold text-gray-900 mb-1">Search Emails</h1>
+      <p class="text-sm text-gray-500 mb-6">Search across all client emails using natural language</p>
+      <form onsubmit="runSearch(event)" class="mb-8">
+        <div class="flex gap-3">
+          <input id="search-input" type="text" placeholder="e.g. show me all clients who had issues with their 1099-INT filing" class="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none" />
+          <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-3 rounded-xl transition text-sm">Search</button>
+        </div>
+        <div class="flex gap-2 mt-3">
+          <button type="button" onclick="document.getElementById('search-input').value='show me all clients who had issues with their 1099-INT filing';runSearch()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded-full transition">1099-INT issues</button>
+          <button type="button" onclick="document.getElementById('search-input').value='which clients are waiting on documents?';runSearch()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded-full transition">waiting on documents</button>
+          <button type="button" onclick="document.getElementById('search-input').value='find emails about cryptocurrency or bitcoin';runSearch()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded-full transition">cryptocurrency</button>
+          <button type="button" onclick="document.getElementById('search-input').value='clients with IRS notices or penalties';runSearch()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded-full transition">IRS notices</button>
+        </div>
+      </form>
+      <div id="search-results"></div>
+    </div>`;
+}
+
+async function runSearch(e) {
+  if (e) e.preventDefault();
+  const query = document.getElementById('search-input').value.trim();
+  if (!query) return;
+  const results = document.getElementById('search-results');
+  results.innerHTML = `<div class="flex items-center gap-3 py-10 justify-center"><div class="loader"></div><span class="text-sm text-gray-500">Searching emails with AI...</span></div>`;
+
+  try {
+    const data = await apiPost('/api/search', { query });
+    if (!data.results || data.results.length === 0) {
+      results.innerHTML = `
+        <div class="bg-gray-50 rounded-xl p-8 text-center">
+          <div class="text-gray-400 text-lg mb-2">No matches found</div>
+          <div class="text-sm text-gray-500">Interpretation: ${data.interpretation || 'N/A'}</div>
+        </div>`;
+      return;
+    }
+    results.innerHTML = `
+      <div class="fade-in">
+        <div class="text-sm text-gray-500 mb-4">Found ${data.results.length} matching client(s) · AI interpretation: <em>"${data.interpretation || ''}"</em> · ${data.tokens?.input || 0} tokens used</div>
+        <div class="space-y-4">
+          ${data.results.map(r => `
+            <div class="bg-white rounded-xl border border-gray-200 p-5">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-3">
+                  <div class="h-10 w-10 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm">${r.client_name.split(' ').map(w=>w[0]).join('')}</div>
+                  <div>
+                    <div class="font-semibold text-gray-900">${r.client_name}</div>
+                    <div class="text-xs text-gray-500">${r.matching_email_ids?.length || 0} matching email(s)</div>
+                  </div>
+                </div>
+                ${r.client_id ? `<button onclick="navigate('client','${r.client_id}')" class="text-sm text-brand-600 hover:text-brand-800 font-medium">View emails →</button>` : ''}
+              </div>
+              <div class="text-sm text-gray-700 mb-2">${r.relevance}</div>
+              <div class="bg-gray-50 rounded-lg p-3 text-sm text-gray-600 italic">"${r.highlight}"</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  } catch (err) {
+    results.innerHTML = `<div class="bg-red-50 text-red-700 rounded-xl p-6">${err.message}</div>`;
+  }
+}
+
+// ─── Conversational Interface ────────────────────────────────────
+let chatSessionId = null;
+
+function showChat() {
+  setActiveTab('chat');
+  const mc = document.getElementById('main-content');
+  mc.innerHTML = `
+    <div class="fade-in flex flex-col" style="height:calc(100vh - 160px)">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Ask AI</h1>
+          <p class="text-sm text-gray-500">Chat with your email data — ask follow-up questions naturally</p>
+        </div>
+        <button onclick="chatSessionId=null;showChat()" class="text-sm text-gray-500 hover:text-red-600 border border-gray-200 px-3 py-1.5 rounded-lg transition">New conversation</button>
+      </div>
+      <div id="chat-messages" class="flex-1 overflow-y-auto space-y-4 pb-4">
+        <div class="bg-gray-50 rounded-xl p-6 text-center">
+          <div class="text-gray-400 mb-3">Start a conversation about your emails</div>
+          <div class="flex flex-wrap gap-2 justify-center">
+            <button onclick="sendChatSuggestion('give me all emails for Akshar from last month')" class="text-xs bg-white border border-gray-200 hover:bg-brand-50 hover:border-brand-300 text-gray-600 px-3 py-1.5 rounded-full transition">"give me all emails for Akshar from last month"</button>
+            <button onclick="sendChatSuggestion('what are the open action items across all clients?')" class="text-xs bg-white border border-gray-200 hover:bg-brand-50 hover:border-brand-300 text-gray-600 px-3 py-1.5 rounded-full transition">"what are the open action items across all clients?"</button>
+            <button onclick="sendChatSuggestion('which clients have IRS issues?')" class="text-xs bg-white border border-gray-200 hover:bg-brand-50 hover:border-brand-300 text-gray-600 px-3 py-1.5 rounded-full transition">"which clients have IRS issues?"</button>
+          </div>
+        </div>
+      </div>
+      <form onsubmit="sendChat(event)" class="flex gap-3 pt-4 border-t border-gray-200">
+        <input id="chat-input" type="text" placeholder="Ask a question about your emails..." class="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none" />
+        <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-3 rounded-xl transition text-sm">Send</button>
+      </form>
+    </div>`;
+}
+
+function sendChatSuggestion(text) {
+  document.getElementById('chat-input').value = text;
+  sendChat();
+}
+
+async function sendChat(e) {
+  if (e) e.preventDefault();
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+
+  const messages = document.getElementById('chat-messages');
+
+  // Remove placeholder if present
+  const placeholder = messages.querySelector('.text-center');
+  if (placeholder) placeholder.remove();
+
+  messages.innerHTML += `
+    <div class="flex justify-end">
+      <div class="bg-brand-600 text-white rounded-xl rounded-br-sm px-4 py-2.5 max-w-lg text-sm">${msg}</div>
+    </div>`;
+
+  const loadingId = 'loading-' + Date.now();
+  messages.innerHTML += `
+    <div id="${loadingId}" class="flex justify-start">
+      <div class="bg-gray-100 rounded-xl rounded-bl-sm px-4 py-3 max-w-lg flex items-center gap-2">
+        <div class="loader" style="width:16px;height:16px;border-width:2px"></div>
+        <span class="text-sm text-gray-500">Thinking...</span>
+      </div>
+    </div>`;
+  messages.scrollTop = messages.scrollHeight;
+
+  try {
+    const data = await apiPost('/api/chat', { message: msg, session_id: chatSessionId });
+    chatSessionId = data.session_id;
+
+    const loadingEl = document.getElementById(loadingId);
+    if (loadingEl) loadingEl.remove();
+
+    const formatted = data.response
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>');
+
+    messages.innerHTML += `
+      <div class="flex justify-start">
+        <div class="bg-gray-100 rounded-xl rounded-bl-sm px-4 py-3 max-w-2xl">
+          <div class="text-sm text-gray-800 leading-relaxed">${formatted}</div>
+          <div class="text-xs text-gray-400 mt-2">Turn ${data.turn} · ${data.tokens.input + data.tokens.output} tokens</div>
+        </div>
+      </div>`;
+    messages.scrollTop = messages.scrollHeight;
+  } catch (err) {
+    const loadingEl = document.getElementById(loadingId);
+    if (loadingEl) loadingEl.remove();
+    messages.innerHTML += `
+      <div class="flex justify-start">
+        <div class="bg-red-50 text-red-700 rounded-xl px-4 py-3 max-w-lg text-sm">${err.message}</div>
+      </div>`;
+  }
+}
+
+// ─── Reports ─────────────────────────────────────────────────────
+async function showReports() {
+  setActiveTab('reports');
+  const mc = document.getElementById('main-content');
+  mc.innerHTML = `<div class="flex items-center justify-center py-20"><div class="loader"></div></div>`;
+
+  try {
+    if (user.role === 'superuser') {
+      const data = await apiFetch('/api/reports/global');
+      mc.innerHTML = `
+        <div class="fade-in">
+          <h1 class="text-2xl font-bold text-gray-900 mb-1">Global Report</h1>
+          <p class="text-sm text-gray-500 mb-6">Summary intelligence across all ${data.total_firms} firms</p>
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-8">
+            ${data.firms.map(f => `
+              <div class="bg-white rounded-xl border border-gray-200 p-5">
+                <div class="text-sm font-semibold text-gray-900 mb-3">${f.firm_name}</div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <div class="text-2xl font-bold text-gray-900">${f.total_clients}</div>
+                    <div class="text-xs text-gray-500">Total Clients</div>
+                  </div>
+                  <div>
+                    <div class="text-2xl font-bold text-brand-600">${f.clients_with_summaries}</div>
+                    <div class="text-xs text-gray-500">With Summaries</div>
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-brand-500 rounded-full" style="width:${f.total_clients ? (f.clients_with_summaries/f.total_clients*100) : 0}%"></div>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+    } else {
+      const data = await apiFetch('/api/reports/firm');
+      mc.innerHTML = `
+        <div class="fade-in">
+          <h1 class="text-2xl font-bold text-gray-900 mb-1">${data.firm_name}</h1>
+          <p class="text-sm text-gray-500 mb-6">Firm summary intelligence</p>
+          <div class="grid gap-4 sm:grid-cols-3 mb-8">
+            <div class="bg-white rounded-xl border border-gray-200 p-5 text-center">
+              <div class="text-3xl font-bold text-gray-900">${data.total_clients}</div>
+              <div class="text-sm text-gray-500 mt-1">Total Clients</div>
+            </div>
+            <div class="bg-white rounded-xl border border-gray-200 p-5 text-center">
+              <div class="text-3xl font-bold text-brand-600">${data.clients_with_summaries}</div>
+              <div class="text-sm text-gray-500 mt-1">With Summaries</div>
+            </div>
+            <div class="bg-white rounded-xl border border-gray-200 p-5 text-center">
+              <div class="text-3xl font-bold text-gray-900">${data.total_clients - data.clients_with_summaries}</div>
+              <div class="text-sm text-gray-500 mt-1">Pending Analysis</div>
+            </div>
+          </div>
+          ${data.summaries.length ? `
+          <h2 class="text-lg font-semibold text-gray-900 mb-4">Summary Tracking</h2>
+          <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <table class="w-full text-sm">
+              <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th class="px-6 py-3 text-left font-medium text-gray-500">Client</th>
+                  <th class="px-6 py-3 text-left font-medium text-gray-500">Emails Analysed</th>
+                  <th class="px-6 py-3 text-left font-medium text-gray-500">Last Refreshed</th>
+                  <th class="px-6 py-3 text-left font-medium text-gray-500">Tokens Used</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100">
+                ${data.summaries.map(s => `
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-3 font-medium text-gray-900">${s.client_name}</td>
+                  <td class="px-6 py-3 text-gray-600">${s.emails_analysed_count}</td>
+                  <td class="px-6 py-3 text-gray-600">${s.last_refreshed_at ? new Date(s.last_refreshed_at).toLocaleString() : '—'}</td>
+                  <td class="px-6 py-3 text-gray-600">${s.input_tokens + s.output_tokens}</td>
+                </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>` : ''}
+        </div>`;
+    }
+  } catch (err) {
+    mc.innerHTML = `<div class="bg-red-50 text-red-700 rounded-xl p-6">${err.message}</div>`;
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+# Email Context & Summarization System — Docker Compose
+#
+# Usage:
+#   export GEMINI_API_KEY=your-key-here
+#   docker-compose up --build
+#
+# This starts:
+#   - PostgreSQL 16 database (port 5432)
+#   - API server with auto-seeding and hot-reload (port 8000)
+#
+# Access the UI at http://localhost:8000
+# Access Swagger docs at http://localhost:8000/docs
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      # Override DB to use the compose PostgreSQL container
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/email_context
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - seed-marker:/app/.seeded_vol
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: email_context
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+  seed-marker:
