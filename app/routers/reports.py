@@ -9,7 +9,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 
-from app.dependencies import CurrentUser, DbSession, require_role
+from app.dependencies import DbSession, require_role
 from app.models import Firm
 from app.repositories.client_repo import ClientRepository
 from app.repositories.summary_repo import SummaryRepository

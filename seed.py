@@ -16,10 +16,8 @@ All accounts use password: password123
 """
 
 import asyncio
-import uuid
 from datetime import datetime, timedelta, timezone
 
-from app.config import settings
 from app.database import async_session_factory, init_db
 from app.models import Accountant, Client, Email, Firm
 from app.services.auth_service import hash_password

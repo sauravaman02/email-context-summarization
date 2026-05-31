@@ -1,6 +1,5 @@
 """Tests for summarisation logic: date validation, cache behavior, key generation."""
 
-import uuid
 from datetime import datetime, timezone
 
 import pytest
